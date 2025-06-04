@@ -1,16 +1,21 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity} from 'react-native';
 
 export default function Index() {
+  interface Tarefa {
+    id: number;
+    texto: string;
+  }
 
   const [contTarefas, setContTarefas] = useState(0);
-  const [tarefas, setTarefas] = useState([]);
+  const [tarefas, setTarefas] = useState<Tarefa[]>([]);
   const [novatarefa, setNovaTarefa] = useState('');
+
 
   const addTarefa = () => {
     if (novatarefa.trim() === '') return;
 
-    setTarefas([...tarefas, novatarefa]);
+    setTarefas([...tarefas, { id: contTarefas + 1, texto: novatarefa }]);
     setNovaTarefa('');
     setContTarefas(contTarefas + 1);
   };
@@ -22,23 +27,23 @@ export default function Index() {
         Lista de Tarefas
       </Text>
 
-      <TextInput placeholder='Digite uma tarefa' 
-      className= "text-white text-lg p-2 border-white border rounded-md" 
-      value={novatarefa} 
-      onChangeText={setNovaTarefa}/>
+      <TextInput placeholder='Digite uma tarefa'
+        className="text-white text-lg p-2 border-white border rounded-md"
+        value={novatarefa}
+        onChangeText={setNovaTarefa} />
 
-      <TouchableOpacity className='bg-blue-700 justify-center items-center rounded-md p-2 text-white font-semibold'
-        onPress={addTarefa}>Adicionar Tarefa
+      <TouchableOpacity className='bg-blue-700 justify-center items-center rounded-md p-2 '
+        onPress={addTarefa}> <Text className='text-white font-semibold'>Adicionar Tarefa</Text>
       </TouchableOpacity>
 
       <Text className='text-2xl font-semibold text-white'>Total de Tarefas: {contTarefas}</Text>
 
-      {tarefas.map((tarefas, index) => (
-        <Text key={index} className="text-white text-lg p-1 border-b border-gray-300">
-          {index + 1}. {tarefas}
+      {tarefas.map((tarefas) => (
+        <Text key={tarefas.id} className="text-white text-lg p-1 border-b border-gray-300">
+          {tarefas.id}. {tarefas.texto}
         </Text>
       ))}
-      
+
     </View>
   );
 }
