@@ -1,49 +1,60 @@
-import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity} from 'react-native';
+import React, { useEffect, useState } from "react";
+import { View, Text, Image, ScrollView, ActivityIndicator } from "react-native";
 
-export default function Index() {
-  interface Tarefa {
-    id: number;
-    texto: string;
+interface ProdutosDados {
+  id: number;
+  title: string;
+  price: number;
+  description: string;
+  image: string;
+  category: string;
+}
+
+export default function App() {
+  const [produtos, setProdutos] = useState<ProdutosDados[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProdutos = async () => {
+      try {
+        const response = await fetch("https://fakestoreapi.com/products");
+        const data = await response.json();
+        setProdutos(data);
+      } catch (error) {
+        console.error("Erro ao buscar produtos:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProdutos();
+  }, []);
+
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-white">
+        <ActivityIndicator size="large" color="#000" />
+        <Text className="mt-2 text-gray-600">Carregando produtos...</Text>
+      </View>
+    );
   }
 
-  const [contTarefas, setContTarefas] = useState(0);
-  const [tarefas, setTarefas] = useState<Tarefa[]>([]);
-  const [novatarefa, setNovaTarefa] = useState('');
-
-
-  const addTarefa = () => {
-    if (novatarefa.trim() === '') return;
-
-    setTarefas([...tarefas, { id: contTarefas + 1, texto: novatarefa }]);
-    setNovaTarefa('');
-    setContTarefas(contTarefas + 1);
-  };
-
   return (
-    <View className="flex-1 p-2 mx-4 gap-3 bg-black">
+    <ScrollView className="flex-1 bg-gray-100 p-4">
+      <Text className="text-2xl font-bold text-center mb-4">🛍 Loja Virtual</Text>
 
-      <Text className='text-2xl font-semibold text-white'>
-        Lista de Tarefas
-      </Text>
-
-      <TextInput placeholder='Digite uma tarefa'
-        className="text-white text-lg p-2 border-white border rounded-md"
-        value={novatarefa}
-        onChangeText={setNovaTarefa} />
-
-      <TouchableOpacity className='bg-blue-700 justify-center items-center rounded-md p-2 '
-        onPress={addTarefa}> <Text className='text-white font-semibold'>Adicionar Tarefa</Text>
-      </TouchableOpacity>
-
-      <Text className='text-2xl font-semibold text-white'>Total de Tarefas: {contTarefas}</Text>
-
-      {tarefas.map((tarefas) => (
-        <Text key={tarefas.id} className="text-white text-lg p-1 border-b border-gray-300">
-          {tarefas.id}. {tarefas.texto}
-        </Text>
+      {produtos.map((produto) => (
+        <View key={produto.id} className="bg-white rounded-2xl p-4 mb-4 shadow-md">
+          <Image
+            source={{ uri: produto.image }}
+            className="w-full h-40 object-contain mb-2"
+            resizeMode="contain"
+          />
+          <Text className="text-base font-semibold mb-1">{produto.title}</Text>
+          <Text className="text-sm text-gray-500 mb-1">{produto.category}</Text>
+          <Text className="text-green-600 font-bold text-lg">${produto.price}</Text>
+        </View>
       ))}
-
-    </View>
+    </ScrollView>
   );
 }
